@@ -158,16 +158,16 @@ void IVSwitchControl::OnInit()
 
 IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, const char* offText, const char* onText)
 : IVSwitchControl(bounds, paramIdx, label, style, true)
-, mOnText(onText)
 , mOffText(offText)
+, mOnText(onText)
 {
   //TODO: assert boolean?
 }
 
 IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, const char* offText, const char* onText, bool initialState)
 : IVSwitchControl(bounds, aF, label, style, 2, true)
-, mOnText(onText)
 , mOffText(offText)
+, mOnText(onText)
 {
   SetValue((double) initialState);
 }
@@ -598,6 +598,15 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty(false);
 }
 
+void IVKnobControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
+{
+  #ifdef AAX_API
+  PromptUserInput(mValueBounds);
+  #else
+  SetValueToDefault(GetValIdxForPos(x, y));
+  #endif
+}
+
 void IVKnobControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   IKnobControlBase::OnMouseUp(x, y, mod);
@@ -745,6 +754,15 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   { 
     ISliderControlBase::OnMouseDown(x, y, mod);
   }
+}
+
+void IVSliderControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
+{
+  #ifdef AAX_API
+  PromptUserInput(mValueBounds);
+  #else
+  SetValueToDefault(GetValIdxForPos(x, y));
+  #endif
 }
 
 void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
@@ -1163,7 +1181,7 @@ void IVGroupControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT));
   mLabelBounds.HPad(mLabelPadding);
-  mWidgetBounds.Alter(0, -(mLabelBounds.H()/2.f) - (mStyle.frameThickness/2.f), 0, 0);
+  mWidgetBounds.Offset(0, -(mLabelBounds.H()/2.f) - (mStyle.frameThickness/2.f), 0, 0);
   const float cr = GetRoundedCornerRadius(mWidgetBounds);
   mLabelBounds.Translate(mRECT.L - mLabelBounds.L + mStyle.frameThickness + mLabelOffset + cr, 0.f);
   SetDirty(false);
@@ -1174,7 +1192,7 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padL, fl
   mGroupName.Set(groupName);
   
   IRECT unionRect;
-  GetUI()->ForControlInGroup(mGroupName.Get(), [&unionRect](IControl& control) { unionRect = unionRect.Union(control.GetRECT()); });
+  GetUI()->ForControlInGroup(mGroupName.Get(), [&unionRect](IControl* pControl) { unionRect = unionRect.Union(pControl->GetRECT()); });
   float halfLabelHeight = mLabelBounds.H()/2.f;
   unionRect.GetVPadded(halfLabelHeight);
   mRECT = unionRect.GetPadded(padL, padT, padR, padB);
@@ -1186,9 +1204,9 @@ IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const char* labe
   const std::initializer_list<EVColor>& colorIDs, const std::initializer_list<const char*>& labelsForIDs)
 : IControl(bounds)
 , IVectorBase(style)
+, mColorChosenFunc(func)
 , mLayout(layout)
 , mColorIdForCells(colorIDs)
-, mColorChosenFunc(func)
 {
   assert(colorIDs.size() == labelsForIDs.size());
   
@@ -1526,7 +1544,7 @@ void IBSliderControl::OnResize()
 void IBKnobRotaterControl::Draw(IGraphics& g)
 {
   const double angle = -130.0 + GetValue() * 260.0;
-  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle, 0, &mBlend);
+  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle, &mBlend);
 }
 
 IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text, const char* str, int charWidth, int charHeight, int charOffset, bool multiLine, bool vCenter, EBlend blend)

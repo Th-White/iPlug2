@@ -60,7 +60,7 @@
     <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
     <VST2_32_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST2_32_COMMAND_ARGS>
     <VST2_64_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST2_64_COMMAND_ARGS>
-    <VST3_64_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST3_64_COMMAND_ARGS>
+    <VST3_64_COMMAND_ARGS>"$(SolutionDir)$(SolutionName).RPP"</VST3_64_COMMAND_ARGS>
     <VST3_32_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST3_32_COMMAND_ARGS>
     <COPY_VST2>1</COPY_VST2>
     <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)/Reaper;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>

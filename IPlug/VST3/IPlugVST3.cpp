@@ -238,10 +238,25 @@ void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
   IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }
 
+/*
 void IPlugVST3::SetLatency(int latency)
 {
   IPlugProcessor::SetLatency(latency);
 
   FUnknownPtr<IComponentHandler>handler(componentHandler);
   handler->restartComponent(kLatencyChanged);
+}
+*/
+
+void IPlugVST3::SetLatency(int latency)
+{
+  if (componentHandler != nullptr)                                // Check
+  {
+    FUnknownPtr<IComponentHandler>handler(componentHandler);
+    if (handler != nullptr)                                               // Check
+    {
+      IPlugProcessor::SetLatency(latency);                       // Set IPlugBase here only, otherwise out of sync
+      handler->restartComponent(kLatencyChanged);
+    }
+  }
 }
